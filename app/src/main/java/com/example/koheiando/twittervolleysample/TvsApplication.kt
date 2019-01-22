@@ -2,6 +2,7 @@ package com.example.koheiando.twittervolleysample
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import com.example.koheiando.twittervolleysample.util.PreferenceUtil
 
 class TvsApplication : Application() {
@@ -15,7 +16,11 @@ class TvsApplication : Application() {
         super.onCreate()
         // initialize the app context
         TvsApplication.applicationContext = this.applicationContext
-        PreferenceUtil.setContext(this.applicationContext)
+        try {
+            PreferenceUtil.setContext(this.applicationContext)
+        } catch (e: Exception) {
+            Log.e("TvsApplication", e.toString())
+        }
     }
 
     override fun onTerminate() {

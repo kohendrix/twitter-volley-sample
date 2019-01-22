@@ -1,5 +1,13 @@
 <resources>
-    <string name="app_name">TwitterVolleySample</string>
-    <string name="action_settings">Settings</string>
-    <string name="text_box_hint">検索ワード</string>
+  <string name="app_name">TwitterVolleySample</string>
+  <string name="action_settings">Settings</string>
+  <string name="text_box_hint">検索ワード</string>
+  <string name="api_key_pub_hint">API Key Public</string>
+  <string name="api_key_sec_hint">API Key Secret</string>
+  <string name="button_fetch_token">Fetch Token</string>
+  <string name="title_initialize_token">Initialize Token</string>
+  <string name="initialize_token_message">The Api Bearer Token has not been initialized yet.\nPlease enter valid api
+    keys above and initialize the token.
+  </string>
+  <string name="initialize_token_error_message">Fetch failed.\nPlease check the api keys again.</string>
 </resources>

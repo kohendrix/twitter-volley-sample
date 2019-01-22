@@ -12,6 +12,7 @@ class PreferenceUtil {
         private lateinit var appContext: Context
 
         fun setContext(context: Context) {
+            appContext = context.applicationContext
             PreferenceManager.setDefaultValues(
                 context.applicationContext,
                 prefName,

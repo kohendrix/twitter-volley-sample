@@ -1,30 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:showIn="@layout/activity_main"
-        tools:context=".MainActivityFragment">
+        android:layout_height="match_parent">
 
     <EditText
             android:id="@+id/search_box"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
             android:layout_margin="20dp"
-            android:hint="@string/text_box_hint"
-            app:layout_constraintBottom_toBottomOf="@id/guide"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            android:hint="@string/text_box_hint"/>
 
-    <android.support.constraint.Guideline
-            android:id="@+id/guide"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.2"/>
-
-
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>
