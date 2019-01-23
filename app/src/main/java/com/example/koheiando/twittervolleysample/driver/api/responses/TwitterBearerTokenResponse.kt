@@ -1,6 +1,7 @@
 package com.example.koheiando.twittervolleysample.driver.api.responses
 
 import com.example.koheiando.twittervolleysample.driver.api.HttpResponse
+import com.example.koheiando.twittervolleysample.model.TwitterBearerToken
 import com.example.koheiando.twittervolleysample.util.PreferenceUtil
 import org.json.JSONObject
 
@@ -9,11 +10,11 @@ class TwitterBearerTokenResponse : HttpResponse() {
         private const val ACCESS_TOKEN_KEY = "access_token"
     }
 
-    lateinit var accessToken: String
+    lateinit var bearerToken: TwitterBearerToken
 
     override fun parseJson(json: JSONObject): HttpResponse {
-        accessToken = json.getString(ACCESS_TOKEN_KEY)
-        PreferenceUtil.TwitterApiInfo.twitterBearerToken = accessToken
+        bearerToken = TwitterBearerToken(json.getString(ACCESS_TOKEN_KEY))
+        PreferenceUtil.TwitterApiInfo.twitterBearerToken = bearerToken.token
         return this
     }
 }

@@ -12,9 +12,8 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent"/>
 
-  <fragment
-      android:id="@+id/initialize_fragment"
-      android:name="com.example.koheiando.twittervolleysample.InitializeFragment"
+  <FrameLayout
+      android:id="@+id/popup_fragment_container"
       android:layout_width="match_parent"
       android:layout_height="match_parent"/>
 

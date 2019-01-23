@@ -5,11 +5,9 @@ import android.util.Log
 import com.android.volley.Request
 import com.example.koheiando.twittervolleysample.driver.api.HttpRequest
 import com.example.koheiando.twittervolleysample.driver.api.responses.TwitterBearerTokenResponse
-import com.example.koheiando.twittervolleysample.util.PreferenceUtil.TwitterApiInfo.Companion.twitterApiKeyPub
-import com.example.koheiando.twittervolleysample.util.PreferenceUtil.TwitterApiInfo.Companion.twitterApiKeySec
 import com.example.koheiando.twittervolleysample.util.PreferenceUtil.UrlInfo.Companion.twitterHost
 
-class TwitterBearerTokenRequest : HttpRequest() {
+class TwitterBearerTokenRequest(private val apiPub: String, private val apiSec: String) : HttpRequest() {
     companion object {
         private const val PATH = "oauth2/token"
         private const val HEADER_AUTHORIZATION_KEY = "Authorization"
@@ -26,14 +24,11 @@ class TwitterBearerTokenRequest : HttpRequest() {
     }
 
     override fun headers(): Map<String, String> {
-        val apiKeyPub = twitterApiKeyPub
-        val apiKeySec = twitterApiKeySec
-
-        if (arrayOf(apiKeyPub, apiKeySec).any { it.isEmpty() }) {
-            throw IllegalStateException("Twitter Api Keys are not initialized.")
+        if (arrayOf(apiPub, apiSec).any { it.isEmpty() }) {
+            throw IllegalStateException("Twitter Api Keys cannot be empty.")
         }
 
-        val preEncoded = "$apiKeyPub:$apiKeySec"
+        val preEncoded = "$apiPub:$apiSec"
         val authValue = "Basic ${Base64.encodeToString(preEncoded.toByteArray(), Base64.NO_WRAP)}" // no line feed code
 
         Log.d(TAG, "auth value $authValue")

@@ -79,14 +79,6 @@ class PreferenceUtil {
 
     class TwitterApiInfo {
         companion object {
-            var twitterApiKeyPub: String
-                get() = getString(prefName, "twitterApiKeyPub")
-                set(value) = setString(prefName, "twitterApiKeyPub", value)
-
-            var twitterApiKeySec: String
-                get() = getString(prefName, "twitterApiKeySec")
-                set(value) = setString(prefName, "twitterApiKeySec", value)
-
             var twitterBearerToken: String
                 get() = getString(prefName, "twitterBearerToken")
                 set(value) = setString(prefName, "twitterBearerToken", value)
