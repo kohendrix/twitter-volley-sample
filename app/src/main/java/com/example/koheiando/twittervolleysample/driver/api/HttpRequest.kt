@@ -20,15 +20,11 @@ abstract class HttpRequest {
         val TAG = this::class.java.simpleName
     }
 
-    protected suspend fun <T : HttpResponse> request(
-        responseClass: KClass<T>,
-        jsonRequest: JSONObject?,
-        retryCount: Int? = null
-    ): T {
+    protected suspend fun <T : HttpResponse> request(responseClass: KClass<T>, jsonRequest: JSONObject?, retryCount: Int? = null): T {
         return suspendCancellableCoroutine { continuation ->
             val success = Response.Listener<JSONObject> { response ->
                 continuation.resume(
-                    responseClass.java.newInstance().parseJson(response) as T
+                        responseClass.java.newInstance().parseJson(response) as T
                 )
             }
 
@@ -57,15 +53,11 @@ abstract class HttpRequest {
         }
     }
 
-    protected suspend fun <T : HttpResponse> request(
-        responseClass: KClass<T>,
-        body: String,
-        retryCount: Int? = null
-    ): T {
+    protected suspend fun <T : HttpResponse> request(responseClass: KClass<T>, body: String, retryCount: Int? = null): T {
         return suspendCancellableCoroutine { continuation ->
             val success = Response.Listener<JSONObject> { response ->
                 continuation.resume(
-                    responseClass.java.newInstance().parseJson(response) as T
+                        responseClass.java.newInstance().parseJson(response) as T
                 )
             }
 

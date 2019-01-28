@@ -10,8 +10,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import com.example.koheiando.twittervolleysample.util.getViewModel
+import com.example.koheiando.twittervolleysample.util.hideKeyboard
 import com.example.koheiando.twittervolleysample.viewModels.MainViewModel
-
 
 class InitializeFragment : Fragment() {
     companion object {
@@ -71,19 +72,19 @@ class InitializeFragment : Fragment() {
             activity?.let { _activity ->
                 updateUI(true)
                 _activity.getViewModel<MainViewModel>().getBearerToken(
-                    pubKey, secKey,
-                    {
-                        _activity.runOnUiThread {
-                            Toast.makeText(TvsApplication.getAppContext(), "Success", Toast.LENGTH_SHORT).show()
-                            removeSelf()
+                        pubKey, secKey,
+                        {
+                            _activity.runOnUiThread {
+                                Toast.makeText(TvsApplication.getAppContext(), "Success", Toast.LENGTH_SHORT).show()
+                                removeSelf()
+                            }
+                        },
+                        {
+                            _activity.runOnUiThread {
+                                updateUI(false)
+                                updateMessage(true)
+                            }
                         }
-                    },
-                    {
-                        _activity.runOnUiThread {
-                            updateUI(false)
-                            updateMessage(true)
-                        }
-                    }
                 )
             }
         }
@@ -93,24 +94,20 @@ class InitializeFragment : Fragment() {
         progressCircle.visibility = if (doLoad) View.VISIBLE else View.GONE
         message.visibility = if (doLoad) View.GONE else View.VISIBLE
         fetchTokenBtn.isEnabled = !doLoad
-        apiKeyPubBox.isFocusable = !doLoad
-        apiKeySecBox.isFocusable = !doLoad
+        apiKeyPubBox.isEnabled = !doLoad
+        apiKeySecBox.isEnabled = !doLoad
         if (doLoad) {
+            apiKeyPubBox.clearFocus()
+            apiKeySecBox.clearFocus()
             view?.let { hideKeyboard(it) }
         }
         isLoading = doLoad
     }
 
     private fun updateMessage(isError: Boolean) {
-        message.text =
-                getText(if (isError) R.string.initialize_token_error_message else R.string.initialize_token_message)
+        message.text = getText(if (isError) R.string.initialize_token_error_message else R.string.initialize_token_message)
         message.setTextColor(if (isError) Color.RED else Color.BLACK)
         isMessageError = isError
-    }
-
-    private fun hideKeyboard(view: View) {
-        (TvsApplication.getAppContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-            .hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     private fun removeSelf() {
