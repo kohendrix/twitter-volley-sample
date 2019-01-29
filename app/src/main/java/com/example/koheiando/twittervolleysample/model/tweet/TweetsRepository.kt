@@ -1,0 +1,41 @@
+package com.example.koheiando.twittervolleysample.model.tweet
+
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
+import android.util.Log
+import com.example.koheiando.twittervolleysample.driver.api.requests.TweetsSearchRequest
+import com.example.koheiando.twittervolleysample.model.User
+import com.example.koheiando.twittervolleysample.model.token.TwitterBearerToken
+import com.example.koheiando.twittervolleysample.util.PreferenceUtil.TwitterApiInfo.Companion.twitterBearerToken
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.util.*
+
+class TweetsRepository {
+    fun loadTweets(searchWords: String): LiveData<TweetDataResult> {
+        val token = TwitterBearerToken(twitterBearerToken)
+        val dataResult = MutableLiveData<TweetDataResult>()
+        dataResult.postValue(TweetDataResult(NetworkState.LOADING, listOf()))
+        if (token.isEmpty()) {
+            dataResult.postValue(TweetDataResult(NetworkState.NO_TOKEN, listOf()))
+        } else {
+            // todo switch to data source sometime
+            GlobalScope.launch(Dispatchers.Default) {
+                try {
+                    val response = TweetsSearchRequest(token, searchWords).request()
+                    dataResult.postValue(TweetDataResult(NetworkState.SUCCESS, response.tweets))
+//                    dataResult.postValue(TweetDataResult(NetworkState.SUCCESS, dummyTweets()))
+                } catch (e: Exception) {
+                    dataResult.postValue(TweetDataResult(NetworkState.ERROR, listOf(), e))
+                    Log.e("TweetsRepository", "loadTweets", e)
+                }
+            }
+        }
+        return dataResult
+    }
+
+    private fun dummyTweets() = (0..15).map {
+        Tweet(it, "DUMMY TWEET $it", User(it, "USER $it", "DUMMY DESC"), Date())
+    }
+}

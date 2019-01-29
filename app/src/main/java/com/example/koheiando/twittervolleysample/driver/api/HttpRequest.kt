@@ -14,6 +14,7 @@ import kotlin.reflect.KClass
 abstract class HttpRequest {
     abstract val url: String
     abstract val method: Int
+    abstract val queryParams: Map<String, String>
     abstract fun headers(): Map<String, String>
 
     companion object {
@@ -30,7 +31,7 @@ abstract class HttpRequest {
 
             val error = Response.ErrorListener { error -> continuation.resumeWithException(error) }
 
-            val request = object : JsonObjectRequest(method, url, jsonRequest, success, error) {
+            val request = object : JsonObjectRequest(method, addQueryParams(), jsonRequest, success, error) {
                 override fun getHeaders(): Map<String, String> = headers()
 
                 override fun parseNetworkError(volleyError: VolleyError): VolleyError {
@@ -63,7 +64,7 @@ abstract class HttpRequest {
 
             val error = Response.ErrorListener { error -> continuation.resumeWithException(error) }
 
-            val request = object : JsonObjectRequest(method, url, null, success, error) {
+            val request = object : JsonObjectRequest(method, addQueryParams(), null, success, error) {
                 override fun getHeaders(): Map<String, String> = headers()
 
                 override fun getBody(): ByteArray {
@@ -88,6 +89,10 @@ abstract class HttpRequest {
                 continuation.resumeWithException(e)
             }
         }
+    }
+
+    private fun addQueryParams(): String {
+        return url + if (queryParams.isNotEmpty()) queryParams.keys.fold("?") { pre, cur -> "$pre$cur=${queryParams[cur]!!}" } else ""
     }
 }
 

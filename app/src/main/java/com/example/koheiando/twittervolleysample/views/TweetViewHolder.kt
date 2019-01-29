@@ -5,7 +5,7 @@ import android.util.Log
 import android.view.View
 import android.widget.TextView
 import com.example.koheiando.twittervolleysample.R
-import com.example.koheiando.twittervolleysample.model.Tweet
+import com.example.koheiando.twittervolleysample.model.tweet.Tweet
 
 class TweetViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
     val tweetTv = view.findViewById<TextView>(R.id.tweet_text_tv)

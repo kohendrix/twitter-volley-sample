@@ -1,27 +1,21 @@
 package com.example.koheiando.twittervolleysample
 
+import android.arch.lifecycle.Observer
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
-import android.widget.ScrollView
-import com.example.koheiando.twittervolleysample.viewModels.MainViewModel
-import android.content.Context.INPUT_METHOD_SERVICE
-import android.graphics.Rect
-import android.support.v4.content.ContextCompat.getSystemService
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import com.example.koheiando.twittervolleysample.model.Tweet
-import com.example.koheiando.twittervolleysample.model.User
+import android.widget.Toast
+import com.example.koheiando.twittervolleysample.model.tweet.NetworkState
 import com.example.koheiando.twittervolleysample.util.getViewModel
+import com.example.koheiando.twittervolleysample.viewModels.MainViewModel
 import com.example.koheiando.twittervolleysample.views.TweetsRecyclerViewAdapter
-import java.util.*
 
 
 /**
@@ -74,13 +68,29 @@ class MainActivityFragment : Fragment() {
     /**
      * start the fetching process
      */
-    private fun fetchTweets(searchWord: String) {
+    private fun fetchTweets(searchWords: String) {
         updateUI(true)
-
-        Handler().postDelayed({
-            (recyclerView.adapter as TweetsRecyclerViewAdapter).updateTweets(dummyTweets())
-            updateUI(false)
-        }, 3000)
+        activity?.getViewModel<MainViewModel>()?.loadTweets(searchWords)?.observe(this, Observer {
+            it?.let { data ->
+                when (data.state) {
+                    NetworkState.SUCCESS -> {
+                        (recyclerView.adapter as TweetsRecyclerViewAdapter).updateTweets(data.tweets)
+                        updateUI(false)
+                    }
+                    NetworkState.LOADING -> {
+                        updateUI(true)
+                    }
+                    NetworkState.NO_TOKEN -> {
+                        updateUI(false)
+                        fragmentManager?.beginTransaction()?.add(R.id.popup_fragment_container, InitializeFragment.getInstance())?.commit()
+                    }
+                    NetworkState.ERROR -> {
+                        updateUI(false)
+                        Toast.makeText(activity, "ERROR....", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
     }
 
     /**
@@ -104,9 +114,5 @@ class MainActivityFragment : Fragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(IS_LOADING_KEY, isLoading)
-    }
-
-    private fun dummyTweets() = (0..15).map {
-        Tweet(it, "DUMMY TWEET $it", User(it, "USER $it", "DUMMY DESC"), Date())
     }
 }

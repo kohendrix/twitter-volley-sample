@@ -17,6 +17,7 @@ class TwitterBearerTokenRequest(private val apiPub: String, private val apiSec: 
 
     override val method: Int = Request.Method.POST
     override val url: String = twitterHost + PATH
+    override val queryParams: Map<String, String> = mapOf()
     private val body = "grant_type=client_credentials"
 
     suspend fun request(): TwitterBearerTokenResponse {
@@ -33,9 +34,9 @@ class TwitterBearerTokenRequest(private val apiPub: String, private val apiSec: 
 
         Log.d(TAG, "auth value $authValue")
 
-        return mutableMapOf(
-            HEADER_AUTHORIZATION_KEY to authValue,
-            HEADER_CONTENT_TYPE_KEY to HEADER_CONTENT_TYPE_VAL
+        return mapOf(
+                HEADER_AUTHORIZATION_KEY to authValue,
+                HEADER_CONTENT_TYPE_KEY to HEADER_CONTENT_TYPE_VAL
         )
     }
 }

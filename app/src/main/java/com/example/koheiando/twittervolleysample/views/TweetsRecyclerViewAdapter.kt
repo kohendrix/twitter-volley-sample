@@ -4,11 +4,10 @@ import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import com.example.koheiando.twittervolleysample.R
 import com.example.koheiando.twittervolleysample.TvsApplication
-import com.example.koheiando.twittervolleysample.model.Tweet
+import com.example.koheiando.twittervolleysample.model.tweet.Tweet
 
 class TweetsRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var tweets: List<Tweet> = listOf()
@@ -20,7 +19,7 @@ class TweetsRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(
         tweets.getOrNull(position)?.let {
             if (vh is TweetViewHolder) {
                 vh.bind(it)
-                vh.setOnClickCallback {  } // maybe use it sometime
+                vh.setOnClickCallback { } // maybe use it sometime
             }
         }
     }
