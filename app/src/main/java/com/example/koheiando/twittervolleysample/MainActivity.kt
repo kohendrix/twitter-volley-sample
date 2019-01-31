@@ -28,4 +28,9 @@ class MainActivity : AppCompatActivity() {
         ev?.let { clearFocusFromEditText(ev) }
         return super.dispatchTouchEvent(ev)
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("MainActivity", "onDestroy isFinishing $isFinishing")
+    }
 }

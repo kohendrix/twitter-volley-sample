@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -51,6 +52,38 @@ class MainActivityFragment : Fragment() {
         }
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        activity!!.getViewModel<MainViewModel>().tweetDataResults.observe(this, Observer {
+            it?.let { data ->
+                when (data.state) {
+                    NetworkState.SUCCESS -> {
+                        (recyclerView.adapter as TweetsRecyclerViewAdapter).updateTweets(data.tweets)
+                        updateUI(false)
+                    }
+                    NetworkState.LOADING -> {
+                        updateUI(true)
+                    }
+                    NetworkState.NO_TOKEN -> {
+                        updateUI(false)
+                        fragmentManager?.beginTransaction()
+                            ?.add(R.id.popup_fragment_container, InitializeFragment.getInstance())?.commit()
+                    }
+                    NetworkState.ERROR -> {
+                        updateUI(false)
+                        Toast.makeText(activity, "ERROR....", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+
+        activity!!.getViewModel<MainViewModel>().data.observe(this, Observer {
+            it?.let {
+                Log.d("MainActivityFragment", "data $it")
+            }
+        })
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         searchButton.setOnClickListener {
@@ -70,27 +103,7 @@ class MainActivityFragment : Fragment() {
      */
     private fun fetchTweets(searchWords: String) {
         updateUI(true)
-        activity?.getViewModel<MainViewModel>()?.loadTweets(searchWords)?.observe(this, Observer {
-            it?.let { data ->
-                when (data.state) {
-                    NetworkState.SUCCESS -> {
-                        (recyclerView.adapter as TweetsRecyclerViewAdapter).updateTweets(data.tweets)
-                        updateUI(false)
-                    }
-                    NetworkState.LOADING -> {
-                        updateUI(true)
-                    }
-                    NetworkState.NO_TOKEN -> {
-                        updateUI(false)
-                        fragmentManager?.beginTransaction()?.add(R.id.popup_fragment_container, InitializeFragment.getInstance())?.commit()
-                    }
-                    NetworkState.ERROR -> {
-                        updateUI(false)
-                        Toast.makeText(activity, "ERROR....", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        })
+        activity?.getViewModel<MainViewModel>()?.search(searchWords)
     }
 
     /**

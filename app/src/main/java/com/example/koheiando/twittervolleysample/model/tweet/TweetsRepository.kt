@@ -13,7 +13,9 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 class TweetsRepository {
+
     fun loadTweets(searchWords: String): LiveData<TweetDataResult> {
+        Log.d("TweetsRepository", "loadTweets $searchWords")
         val token = TwitterBearerToken(twitterBearerToken)
         val dataResult = MutableLiveData<TweetDataResult>()
         dataResult.postValue(TweetDataResult(NetworkState.LOADING, listOf()))
