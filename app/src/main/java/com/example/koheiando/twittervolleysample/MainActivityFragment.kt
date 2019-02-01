@@ -51,6 +51,20 @@ class MainActivityFragment : Fragment() {
         }
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        searchButton.setOnClickListener {
+            if (searchBox.text.isNotEmpty()) {
+                fetchTweets(searchBox.text.toString())
+            }
+        }
+
+        recyclerView.layoutManager = LinearLayoutManager(activity).apply { orientation = LinearLayoutManager.VERTICAL }
+        recyclerView.adapter = TweetsRecyclerViewAdapter()
+
+        updateUI(isLoading)
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         // activity should not be null but just in case
@@ -78,25 +92,10 @@ class MainActivityFragment : Fragment() {
         })
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        searchButton.setOnClickListener {
-            if (searchBox.text.isNotEmpty()) {
-                fetchTweets(searchBox.text.toString())
-            }
-        }
-
-        recyclerView.layoutManager = LinearLayoutManager(activity).apply { orientation = LinearLayoutManager.VERTICAL }
-        recyclerView.adapter = TweetsRecyclerViewAdapter()
-
-        updateUI(isLoading)
-    }
-
     /**
      * start the fetching process
      */
     private fun fetchTweets(searchWords: String) {
-        updateUI(true)
         activity?.getViewModel<MainViewModel>()?.search(searchWords)
     }
 

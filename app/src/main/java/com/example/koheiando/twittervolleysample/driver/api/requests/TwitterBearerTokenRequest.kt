@@ -32,6 +32,7 @@ class TwitterBearerTokenRequest(private val apiPub: String, private val apiSec: 
         val preEncoded = "$apiPub:$apiSec"
         val authValue = "Basic ${Base64.encodeToString(preEncoded.toByteArray(), Base64.NO_WRAP)}" // no line feed code
 
+        Log.d(TAG, "preEncoded $preEncoded")
         Log.d(TAG, "auth value $authValue")
 
         return mapOf(

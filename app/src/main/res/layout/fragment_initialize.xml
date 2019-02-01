@@ -31,7 +31,7 @@
                 android:layout_height="60dp"
                 android:hint="@string/api_key_pub_hint"
                 android:maxLines="1"
-                android:maxLength="40"/>
+                android:maxLength="100" />
 
             <EditText
                 android:id="@+id/api_key_sec_box"
@@ -39,7 +39,7 @@
                 android:layout_height="60dp"
                 android:hint="@string/api_key_sec_hint"
                 android:maxLines="1"
-                android:maxLength="40"/>
+                android:maxLength="100" />
 
             <TextView
                 android:id="@+id/fetch_token_message"
