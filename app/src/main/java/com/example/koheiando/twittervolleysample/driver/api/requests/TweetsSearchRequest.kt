@@ -20,7 +20,6 @@ class TweetsSearchRequest(private val bearerToken: TwitterBearerToken, searchWor
     override val queryParams: Map<String, String> = mapOf(QUERY_KEY to searchWords)
 
     suspend fun request(): TweetsSearchResponse {
-        Log.d("TweetsSearchRequest", "token $bearerToken query ${queryParams}")
         return request(TweetsSearchResponse::class, JSONObject())
     }
 

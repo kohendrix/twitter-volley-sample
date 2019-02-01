@@ -9,17 +9,17 @@ import com.example.koheiando.twittervolleysample.util.PreferenceUtil.TwitterApiI
 import com.example.koheiando.twittervolleysample.util.clearFocusFromEditText
 
 class MainActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("MainActivity", "onCreate $savedInstanceState")
         setContentView(R.layout.activity_main)
         window.setSoftInputMode(SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+
         if (savedInstanceState == null) {
             if (twitterBearerToken.isEmpty()) {
                 supportFragmentManager.beginTransaction()
-                    .add(R.id.popup_fragment_container, InitializeFragment.getInstance())
-                    .commit()
+                        .add(R.id.popup_fragment_container, InitializeFragment.getInstance())
+                        .commit()
             }
         }
     }

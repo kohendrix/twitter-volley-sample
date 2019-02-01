@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
-import com.example.koheiando.twittervolleysample.model.tweet.NetworkState
+import com.example.koheiando.twittervolleysample.driver.api.NetworkState
 import com.example.koheiando.twittervolleysample.util.getViewModel
 import com.example.koheiando.twittervolleysample.viewModels.MainViewModel
 import com.example.koheiando.twittervolleysample.views.TweetsRecyclerViewAdapter
@@ -54,7 +53,8 @@ class MainActivityFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        activity!!.getViewModel<MainViewModel>().tweetDataResults.observe(this, Observer {
+        // activity should not be null but just in case
+        activity?.getViewModel<MainViewModel>()?.tweetDataResults?.observe(this, Observer {
             it?.let { data ->
                 when (data.state) {
                     NetworkState.SUCCESS -> {
@@ -67,19 +67,13 @@ class MainActivityFragment : Fragment() {
                     NetworkState.NO_TOKEN -> {
                         updateUI(false)
                         fragmentManager?.beginTransaction()
-                            ?.add(R.id.popup_fragment_container, InitializeFragment.getInstance())?.commit()
+                                ?.add(R.id.popup_fragment_container, InitializeFragment.getInstance())?.commit()
                     }
                     NetworkState.ERROR -> {
                         updateUI(false)
                         Toast.makeText(activity, "ERROR....", Toast.LENGTH_SHORT).show()
                     }
                 }
-            }
-        })
-
-        activity!!.getViewModel<MainViewModel>().data.observe(this, Observer {
-            it?.let {
-                Log.d("MainActivityFragment", "data $it")
             }
         })
     }

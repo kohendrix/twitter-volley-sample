@@ -1,6 +1,6 @@
 package com.example.koheiando.twittervolleysample
 
-import android.content.Context
+import android.arch.lifecycle.Observer
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -8,8 +8,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import com.example.koheiando.twittervolleysample.driver.api.NetworkState
 import com.example.koheiando.twittervolleysample.util.getViewModel
 import com.example.koheiando.twittervolleysample.util.hideKeyboard
 import com.example.koheiando.twittervolleysample.viewModels.MainViewModel
@@ -55,42 +55,46 @@ class InitializeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        updateMessage(isMessageError)
-        updateUI(isLoading)
+        switchMessage(isMessageError)
+        switchUI(isLoading)
         fetchTokenBtn.setOnClickListener {
             fetchToken()
         }
     }
 
+    /**
+     * call VM to fetch the token
+     */
     private fun fetchToken() {
         val pubKey = apiKeyPubBox.text.toString()
         val secKey = apiKeySecBox.text.toString()
         if (arrayOf(pubKey, secKey).any { it.isEmpty() }) {
-            updateMessage(true)
+            switchMessage(true)
             return
         } else {
-            activity?.let { _activity ->
-                updateUI(true)
-                _activity.getViewModel<MainViewModel>().getBearerToken(
-                        pubKey, secKey,
-                        {
-                            _activity.runOnUiThread {
-                                Toast.makeText(TvsApplication.getAppContext(), "Success", Toast.LENGTH_SHORT).show()
-                                removeSelf()
-                            }
-                        },
-                        {
-                            _activity.runOnUiThread {
-                                updateUI(false)
-                                updateMessage(true)
-                            }
+            activity?.apply {
+                getViewModel<MainViewModel>().getBearerToken(pubKey, secKey).observe(this, Observer {
+                    when (it) {
+                        NetworkState.SUCCESS -> runOnUiThread {
+                            Toast.makeText(TvsApplication.getAppContext(), "Success", Toast.LENGTH_SHORT).show()
+                            removeSelf()
                         }
-                )
+                        NetworkState.ERROR, NetworkState.NO_TOKEN -> runOnUiThread {
+                            switchUI(false)
+                            switchMessage(true)
+                        }
+                        NetworkState.LOADING, null -> switchUI(true)
+                    }
+                })
             }
         }
     }
 
-    private fun updateUI(doLoad: Boolean) {
+    /**
+     * switches UI between loading <-> default
+     * @param { Boolean } doLoad
+     */
+    private fun switchUI(doLoad: Boolean) {
         progressCircle.visibility = if (doLoad) View.VISIBLE else View.GONE
         message.visibility = if (doLoad) View.GONE else View.VISIBLE
         fetchTokenBtn.isEnabled = !doLoad
@@ -104,7 +108,11 @@ class InitializeFragment : Fragment() {
         isLoading = doLoad
     }
 
-    private fun updateMessage(isError: Boolean) {
+    /**
+     * switches the main message between error <-> default
+     * @param { Boolean } isError
+     */
+    private fun switchMessage(isError: Boolean) {
         message.text = getText(if (isError) R.string.initialize_token_error_message else R.string.initialize_token_message)
         message.setTextColor(if (isError) Color.RED else Color.BLACK)
         isMessageError = isError

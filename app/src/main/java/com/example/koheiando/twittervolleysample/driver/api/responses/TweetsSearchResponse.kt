@@ -17,6 +17,7 @@ class TweetsSearchResponse : HttpResponse() {
         private const val ID_INT_KEY = "id"
         private const val NAME_KEY = "name"
         private const val DESCRIPTION_KEY = "description"
+        private const val TIME_FORMAT = "EEE MMM dd HH:mm:ss Z yyyy"
     }
 
     lateinit var tweets: List<Tweet>
@@ -31,7 +32,7 @@ class TweetsSearchResponse : HttpResponse() {
                     id = json.getInt(ID_INT_KEY),
                     text = json.getString(TEXT_KEY),
                     user = User(userJson.getInt(ID_INT_KEY), userJson.getString(NAME_KEY), userJson.getString(DESCRIPTION_KEY)),
-                    createdAt = dateFromString(json.getString(CREATED_AT_KEY), "EEE MMM dd HH:mm:ss ZZZZ yyyy")
+                    createdAt = dateFromString(json.getString(CREATED_AT_KEY), TIME_FORMAT)
             )
         }
 
@@ -40,7 +41,7 @@ class TweetsSearchResponse : HttpResponse() {
 
     private fun dateFromString(dateStr: String, fmt: String): Date {
         return try {
-            SimpleDateFormat(fmt, Locale.JAPAN).parse(dateStr)
+            SimpleDateFormat(fmt, Locale.US).parse(dateStr)
         } catch (e: Exception) {
             e.printStackTrace()
             Date()
