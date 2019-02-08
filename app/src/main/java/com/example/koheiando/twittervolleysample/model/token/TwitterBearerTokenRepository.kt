@@ -1,8 +1,8 @@
 package com.example.koheiando.twittervolleysample.model.token
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.koheiando.twittervolleysample.driver.api.NetworkState
 import com.example.koheiando.twittervolleysample.driver.api.requests.TwitterBearerTokenRequest
 import com.example.koheiando.twittervolleysample.util.PreferenceUtil.TwitterApiInfo.Companion.twitterBearerToken
@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class TwitterBearerTokenRepository {
+class TwitterBearerTokenRepository(private val tokenRequest: TwitterBearerTokenRequest) {
     /**
      * this fetches the token but not update the preference value
      * if the preference value is not empty, returns it without validating
@@ -22,9 +22,13 @@ class TwitterBearerTokenRepository {
         val result = MutableLiveData<TwitterBearerTokenResult>()
         GlobalScope.launch(Dispatchers.Default) {
             try {
-                result.postValue(TwitterBearerTokenResult(NetworkState.SUCCESS,
+                result.postValue(
+                    TwitterBearerTokenResult(
+                        NetworkState.SUCCESS,
                         if (twitterBearerToken.isNotEmpty()) TwitterBearerToken(twitterBearerToken)
-                        else TwitterBearerTokenRequest(apiPub, apiSec).request().bearerToken))
+                        else tokenRequest.request(apiPub, apiSec).bearerToken
+                    )
+                )
             } catch (e: Exception) {
                 result.postValue(TwitterBearerTokenResult(NetworkState.ERROR, TwitterBearerToken(""), e))
                 Log.e(TAG, "getRefreshedToken", e)
@@ -44,7 +48,12 @@ class TwitterBearerTokenRepository {
         val result = MutableLiveData<TwitterBearerTokenResult>()
         GlobalScope.launch(Dispatchers.Default) {
             try {
-                result.postValue(TwitterBearerTokenResult(NetworkState.SUCCESS, TwitterBearerTokenRequest(apiPub, apiSec).request().bearerToken))
+                result.postValue(
+                    TwitterBearerTokenResult(
+                        NetworkState.SUCCESS,
+                        tokenRequest.request(apiPub, apiSec).bearerToken
+                    )
+                )
             } catch (e: Exception) {
                 result.postValue(TwitterBearerTokenResult(NetworkState.ERROR, TwitterBearerToken(""), e))
                 Log.e(TAG, "getRefreshedToken", e)

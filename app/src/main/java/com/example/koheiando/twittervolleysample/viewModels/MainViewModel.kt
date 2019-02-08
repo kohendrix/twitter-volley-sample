@@ -1,7 +1,7 @@
 package com.example.koheiando.twittervolleysample.viewModels
 
-import android.arch.lifecycle.*
 import android.util.Log
+import androidx.lifecycle.*
 import com.example.koheiando.twittervolleysample.driver.api.NetworkState
 import com.example.koheiando.twittervolleysample.model.token.TwitterBearerTokenRepository
 import com.example.koheiando.twittervolleysample.model.token.TwitterBearerTokenResult
@@ -9,12 +9,15 @@ import com.example.koheiando.twittervolleysample.model.tweet.TweetDataResult
 import com.example.koheiando.twittervolleysample.model.tweet.TweetsRepository
 import com.example.koheiando.twittervolleysample.util.PreferenceUtil
 
-class MainViewModel : ViewModel() {
-    private val repository = TweetsRepository()
+class MainViewModel(
+    private val tokenRepository: TwitterBearerTokenRepository,
+    private val tweetsRepository: TweetsRepository
+) : ViewModel() {
     private val searchWords = MutableLiveData<String>() // trigger
 
     // tweet data exposed to Views
-    val tweetDataResults: LiveData<TweetDataResult> = Transformations.switchMap(searchWords) { str -> repository.loadTweets(str) }
+    val tweetDataResults: LiveData<TweetDataResult> =
+        Transformations.switchMap(searchWords) { str -> tweetsRepository.loadTweets(str) }
 
     /**
      * search trigger
@@ -33,7 +36,7 @@ class MainViewModel : ViewModel() {
      */
     fun getBearerToken(apiPub: String, apiSec: String): LiveData<NetworkState> {
         val mediator = MediatorLiveData<NetworkState>()
-        val tokenResultData = TwitterBearerTokenRepository().getToken(apiPub, apiSec)
+        val tokenResultData = tokenRepository.getToken(apiPub, apiSec)
 
         mediator.addSource(tokenResultData) { result: TwitterBearerTokenResult? ->
             result?.let {

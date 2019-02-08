@@ -7,24 +7,26 @@ import com.example.koheiando.twittervolleysample.driver.api.HttpRequest
 import com.example.koheiando.twittervolleysample.driver.api.responses.TwitterBearerTokenResponse
 import com.example.koheiando.twittervolleysample.util.PreferenceUtil.UrlInfo.Companion.twitterHost
 
-class TwitterBearerTokenRequest(private val apiPub: String, private val apiSec: String) : HttpRequest() {
+class TwitterBearerTokenRequest : HttpRequest() {
     companion object {
         private const val PATH = "oauth2/token"
         private const val HEADER_AUTHORIZATION_KEY = "Authorization"
         private const val HEADER_CONTENT_TYPE_KEY = "Content-Type"
         private const val HEADER_CONTENT_TYPE_VAL = "application/x-www-form-urlencoded;charset=UTF-8"
+        private val TAG = TwitterBearerTokenRequest::class.java.simpleName
     }
 
     override val method: Int = Request.Method.POST
     override val url: String = twitterHost + PATH
-    override val queryParams: Map<String, String> = mapOf()
+    override val retryCount: Int = 2
+
     private val body = "grant_type=client_credentials"
 
-    suspend fun request(): TwitterBearerTokenResponse {
-        return request(TwitterBearerTokenResponse::class, body)
+    suspend fun request(apiPub: String, apiSec: String): TwitterBearerTokenResponse {
+        return request(TwitterBearerTokenResponse::class, headers(apiPub, apiSec), mapOf(), body)
     }
 
-    override fun headers(): Map<String, String> {
+    private fun headers(apiPub: String, apiSec: String): Map<String, String> {
         if (arrayOf(apiPub, apiSec).any { it.isEmpty() }) {
             throw IllegalStateException("Twitter Api Keys cannot be empty.")
         }

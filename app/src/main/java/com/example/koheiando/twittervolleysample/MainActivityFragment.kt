@@ -1,10 +1,6 @@
 package com.example.koheiando.twittervolleysample
 
-import android.arch.lifecycle.Observer
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +8,15 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.example.koheiando.twittervolleysample.driver.api.NetworkState
+import com.example.koheiando.twittervolleysample.driver.api.requests.TweetsSearchRequest
+import com.example.koheiando.twittervolleysample.driver.api.requests.TwitterBearerTokenRequest
+import com.example.koheiando.twittervolleysample.model.token.TwitterBearerTokenRepository
+import com.example.koheiando.twittervolleysample.model.tweet.TweetsRepository
 import com.example.koheiando.twittervolleysample.util.getViewModel
 import com.example.koheiando.twittervolleysample.viewModels.MainViewModel
 import com.example.koheiando.twittervolleysample.views.TweetsRecyclerViewAdapter
@@ -29,7 +33,7 @@ class MainActivityFragment : Fragment() {
     private lateinit var searchBox: EditText
     private lateinit var searchButton: Button
     private lateinit var progressCircle: ProgressBar
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerView: androidx.recyclerview.widget.RecyclerView
     private var isLoading = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,10 +48,7 @@ class MainActivityFragment : Fragment() {
             searchBox = findViewById<EditText>(R.id.search_box)
             searchButton = findViewById<Button>(R.id.search_btn)
             progressCircle = findViewById<ProgressBar>(R.id.progress_circle)
-            recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
-            activity?.getViewModel<MainViewModel>()?.let {
-
-            }
+            recyclerView = findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recycler_view)
         }
     }
 
@@ -59,7 +60,8 @@ class MainActivityFragment : Fragment() {
             }
         }
 
-        recyclerView.layoutManager = LinearLayoutManager(activity).apply { orientation = LinearLayoutManager.VERTICAL }
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+            .apply { orientation = VERTICAL }
         recyclerView.adapter = TweetsRecyclerViewAdapter()
 
         updateUI(isLoading)
@@ -68,7 +70,12 @@ class MainActivityFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         // activity should not be null but just in case
-        activity?.getViewModel<MainViewModel>()?.tweetDataResults?.observe(this, Observer {
+        activity?.getViewModel {
+            MainViewModel(
+                TwitterBearerTokenRepository(TwitterBearerTokenRequest()),
+                TweetsRepository(TweetsSearchRequest())
+            )
+        }?.tweetDataResults?.observe(this, Observer {
             it?.let { data ->
                 when (data.state) {
                     NetworkState.SUCCESS -> {
@@ -81,7 +88,7 @@ class MainActivityFragment : Fragment() {
                     NetworkState.NO_TOKEN -> {
                         updateUI(false)
                         fragmentManager?.beginTransaction()
-                                ?.add(R.id.popup_fragment_container, InitializeFragment.getInstance())?.commit()
+                            ?.add(R.id.popup_fragment_container, InitializeFragment.getInstance())?.commit()
                     }
                     NetworkState.ERROR -> {
                         updateUI(false)

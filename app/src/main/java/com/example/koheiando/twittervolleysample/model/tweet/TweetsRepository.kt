@@ -1,8 +1,8 @@
 package com.example.koheiando.twittervolleysample.model.tweet
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.koheiando.twittervolleysample.driver.api.NetworkState
 import com.example.koheiando.twittervolleysample.driver.api.requests.TweetsSearchRequest
 import com.example.koheiando.twittervolleysample.model.User
@@ -13,7 +13,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.*
 
-class TweetsRepository {
+class TweetsRepository(val tweetsSearchRequest: TweetsSearchRequest) {
 
     fun loadTweets(searchWords: String): LiveData<TweetDataResult> {
         val token = TwitterBearerToken(twitterBearerToken)
@@ -25,7 +25,12 @@ class TweetsRepository {
             // todo switch to data source sometime
             GlobalScope.launch(Dispatchers.Default) {
                 try {
-                    dataResult.postValue(TweetDataResult(NetworkState.SUCCESS, TweetsSearchRequest(token, searchWords).request().tweets))
+                    dataResult.postValue(
+                        TweetDataResult(
+                            NetworkState.SUCCESS,
+                            tweetsSearchRequest.request(token, searchWords).tweets
+                        )
+                    )
                 } catch (e: Exception) {
                     dataResult.postValue(TweetDataResult(NetworkState.ERROR, listOf(), e))
                     Log.e("TweetsRepository", "loadTweets", e)

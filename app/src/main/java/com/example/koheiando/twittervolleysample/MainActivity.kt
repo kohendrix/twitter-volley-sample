@@ -1,10 +1,10 @@
 package com.example.koheiando.twittervolleysample
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.MotionEvent
 import android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+import androidx.appcompat.app.AppCompatActivity
 import com.example.koheiando.twittervolleysample.util.PreferenceUtil.TwitterApiInfo.Companion.twitterBearerToken
 import com.example.koheiando.twittervolleysample.util.clearFocusFromEditText
 
@@ -18,8 +18,8 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             if (twitterBearerToken.isEmpty()) {
                 supportFragmentManager.beginTransaction()
-                        .add(R.id.popup_fragment_container, InitializeFragment.getInstance())
-                        .commit()
+                    .add(R.id.popup_fragment_container, InitializeFragment.getInstance())
+                    .commit()
             }
         }
     }

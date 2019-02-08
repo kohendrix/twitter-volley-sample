@@ -14,14 +14,18 @@ import kotlin.reflect.KClass
 abstract class HttpRequest {
     abstract val url: String
     abstract val method: Int
-    abstract val queryParams: Map<String, String>
-    abstract fun headers(): Map<String, String>
+    open val retryCount: Int = 1
 
     companion object {
-        val TAG = this::class.java.simpleName
+        private val TAG = this::class.java.simpleName
     }
 
-    protected suspend fun <T : HttpResponse> request(responseClass: KClass<T>, jsonRequest: JSONObject?, retryCount: Int? = null): T {
+    protected suspend fun <T : HttpResponse> request(
+            responseClass: KClass<T>,
+            headers: Map<String, String>,
+            queryParams: Map<String, String>,
+            jsonRequest: JSONObject?
+    ): T {
         return suspendCancellableCoroutine { continuation ->
             val success = Response.Listener<JSONObject> { response ->
                 continuation.resume(
@@ -31,8 +35,8 @@ abstract class HttpRequest {
 
             val error = Response.ErrorListener { error -> continuation.resumeWithException(error) }
 
-            val request = object : JsonObjectRequest(method, addQueryParams(), jsonRequest, success, error) {
-                override fun getHeaders(): Map<String, String> = headers()
+            val request = object : JsonObjectRequest(method, queryParams.toUrl(), jsonRequest, success, error) {
+                override fun getHeaders(): Map<String, String> = headers
 
                 override fun parseNetworkError(volleyError: VolleyError): VolleyError {
                     return volleyError.networkResponse?.let {
@@ -43,7 +47,7 @@ abstract class HttpRequest {
                 }
             }
 
-            request.retryPolicy = retryCount?.let { HttpRetryPolicy(it) } ?: HttpRetryPolicy()
+            request.retryPolicy = HttpRetryPolicy(maxRetry = retryCount)
             continuation.invokeOnCancellation { request.cancel() }
 
             try {
@@ -54,18 +58,21 @@ abstract class HttpRequest {
         }
     }
 
-    protected suspend fun <T : HttpResponse> request(responseClass: KClass<T>, body: String, retryCount: Int? = null): T {
+    protected suspend fun <T : HttpResponse> request(
+            responseClass: KClass<T>,
+            headers: Map<String, String>,
+            queryParams: Map<String, String>,
+            body: String
+    ): T {
         return suspendCancellableCoroutine { continuation ->
             val success = Response.Listener<JSONObject> { response ->
-                continuation.resume(
-                        responseClass.java.newInstance().parseJson(response) as T
-                )
+                continuation.resume(responseClass.java.newInstance().parseJson(response) as T)
             }
 
             val error = Response.ErrorListener { error -> continuation.resumeWithException(error) }
 
-            val request = object : JsonObjectRequest(method, addQueryParams(), null, success, error) {
-                override fun getHeaders(): Map<String, String> = headers()
+            val request = object : JsonObjectRequest(method, queryParams.toUrl(), null, success, error) {
+                override fun getHeaders(): Map<String, String> = headers
 
                 override fun getBody(): ByteArray {
                     return body.toByteArray()
@@ -80,7 +87,7 @@ abstract class HttpRequest {
                 }
             }
 
-            request.retryPolicy = retryCount?.let { HttpRetryPolicy(it) } ?: HttpRetryPolicy()
+            request.retryPolicy = HttpRetryPolicy(maxRetry = retryCount)
             continuation.invokeOnCancellation { request.cancel() }
 
             try {
@@ -91,8 +98,8 @@ abstract class HttpRequest {
         }
     }
 
-    private fun addQueryParams(): String {
-        return url + if (queryParams.isNotEmpty()) queryParams.keys.fold("?") { pre, cur -> "$pre$cur=${queryParams[cur]!!}" } else ""
+    private fun Map<String, String>.toUrl(): String {
+        return url + if (this.isNotEmpty()) this.keys.fold("?") { pre, cur -> "$pre$cur=${this[cur]!!}" } else ""
     }
 }
 

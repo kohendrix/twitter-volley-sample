@@ -1,20 +1,23 @@
 package com.example.koheiando.twittervolleysample
 
-import android.arch.lifecycle.Observer
 import android.graphics.Color
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.lifecycle.Observer
 import com.example.koheiando.twittervolleysample.driver.api.NetworkState
+import com.example.koheiando.twittervolleysample.driver.api.requests.TweetsSearchRequest
+import com.example.koheiando.twittervolleysample.driver.api.requests.TwitterBearerTokenRequest
+import com.example.koheiando.twittervolleysample.model.token.TwitterBearerTokenRepository
+import com.example.koheiando.twittervolleysample.model.tweet.TweetsRepository
 import com.example.koheiando.twittervolleysample.util.getViewModel
 import com.example.koheiando.twittervolleysample.util.hideKeyboard
 import com.example.koheiando.twittervolleysample.viewModels.MainViewModel
 
-class InitializeFragment : Fragment() {
+class InitializeFragment : androidx.fragment.app.Fragment() {
     companion object {
         fun getInstance(b: Bundle? = null) = InitializeFragment().apply {
             b?.let { arguments = it }
@@ -31,6 +34,7 @@ class InitializeFragment : Fragment() {
     private lateinit var progressCircle: ProgressBar
     private var isLoading = false
     private var isMessageError = false
+    private lateinit var vm: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +42,12 @@ class InitializeFragment : Fragment() {
         savedInstanceState?.apply {
             isLoading = getBoolean(KEY_IS_LOADING)
             isMessageError = getBoolean(KEY_IS_MESSAGE_ERROR)
+        }
+        vm = getViewModel {
+            MainViewModel(
+                TwitterBearerTokenRepository(TwitterBearerTokenRequest()),
+                TweetsRepository(TweetsSearchRequest())
+            )
         }
     }
 
@@ -73,7 +83,7 @@ class InitializeFragment : Fragment() {
             return
         } else {
             activity?.apply {
-                getViewModel<MainViewModel>().getBearerToken(pubKey, secKey).observe(this, Observer {
+                vm.getBearerToken(pubKey, secKey).observe(this, Observer {
                     when (it) {
                         NetworkState.SUCCESS -> runOnUiThread {
                             Toast.makeText(TvsApplication.getAppContext(), "Success", Toast.LENGTH_SHORT).show()
@@ -113,7 +123,8 @@ class InitializeFragment : Fragment() {
      * @param { Boolean } isError
      */
     private fun switchMessage(isError: Boolean) {
-        message.text = getText(if (isError) R.string.initialize_token_error_message else R.string.initialize_token_message)
+        message.text =
+                getText(if (isError) R.string.initialize_token_error_message else R.string.initialize_token_message)
         message.setTextColor(if (isError) Color.RED else Color.BLACK)
         isMessageError = isError
     }

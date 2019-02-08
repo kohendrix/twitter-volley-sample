@@ -1,13 +1,12 @@
 package com.example.koheiando.twittervolleysample.views
 
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
 import android.widget.TextView
 import com.example.koheiando.twittervolleysample.R
 import com.example.koheiando.twittervolleysample.model.tweet.Tweet
 
-class TweetViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
+class TweetViewHolder(private val view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
     val tweetTv = view.findViewById<TextView>(R.id.tweet_text_tv)
     val userNameTv = view.findViewById<TextView>(R.id.user_name_tv)
 

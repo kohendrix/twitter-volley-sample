@@ -1,20 +1,20 @@
 package com.example.koheiando.twittervolleysample.views
 
-import android.support.v7.util.DiffUtil
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import com.example.koheiando.twittervolleysample.R
 import com.example.koheiando.twittervolleysample.TvsApplication
 import com.example.koheiando.twittervolleysample.model.tweet.Tweet
 
-class TweetsRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TweetsRecyclerViewAdapter :
+    androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
     private var tweets: List<Tweet> = listOf()
 
     override fun getItemCount(): Int = tweets.size
 
-    override fun onBindViewHolder(vh: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(vh: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
         Log.d("RecyclerViewAdapter", "onBindViewHolder position $position")
         tweets.getOrNull(position)?.let {
             if (vh is TweetViewHolder) {
@@ -24,9 +24,18 @@ class TweetsRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(
         }
     }
 
-    override fun onCreateViewHolder(vg: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(
+        vg: ViewGroup,
+        viewType: Int
+    ): androidx.recyclerview.widget.RecyclerView.ViewHolder {
         Log.d("RecyclerViewAdapter", "onCreateViewHolder")
-        return TweetViewHolder(LayoutInflater.from(TvsApplication.getAppContext()).inflate(R.layout.tweet_item, vg, false))
+        return TweetViewHolder(
+            LayoutInflater.from(TvsApplication.getAppContext()).inflate(
+                R.layout.tweet_item,
+                vg,
+                false
+            )
+        )
     }
 
     override fun getItemViewType(position: Int): Int {
