@@ -8,6 +8,7 @@ import com.example.koheiando.twittervolleysample.model.token.TwitterBearerTokenR
 import com.example.koheiando.twittervolleysample.model.tweet.TweetDataResult
 import com.example.koheiando.twittervolleysample.model.tweet.TweetsRepository
 import com.example.koheiando.twittervolleysample.util.PreferenceUtil
+import kotlinx.coroutines.launch
 
 class MainViewModel(
     private val tokenRepository: TwitterBearerTokenRepository,
@@ -36,17 +37,23 @@ class MainViewModel(
      */
     fun getBearerToken(apiPub: String, apiSec: String): LiveData<NetworkState> {
         val mediator = MediatorLiveData<NetworkState>()
-        val tokenResultData = tokenRepository.getToken(apiPub, apiSec)
+        // initial value
+        mediator.postValue(NetworkState.LOADING)
+        
+        viewModelScope.launch {
+            val tokenResultData = tokenRepository.getToken(apiPub, apiSec)
 
-        mediator.addSource(tokenResultData) { result: TwitterBearerTokenResult? ->
-            result?.let {
-                if (result.state == NetworkState.SUCCESS) {
-                    PreferenceUtil.TwitterApiInfo.twitterBearerToken = result.token.toString() // save it to local
+            mediator.addSource(tokenResultData) { result: TwitterBearerTokenResult? ->
+                result?.let {
+                    if (result.state == NetworkState.SUCCESS) {
+                        PreferenceUtil.TwitterApiInfo.twitterBearerToken =
+                            result.token.toString() // save it to local
+                    }
+                    if (result.state == NetworkState.ERROR) {
+                        Log.e(TAG, "getBearerToken", result.exception)
+                    }
+                    mediator.postValue(result.state)
                 }
-                if (result.state == NetworkState.ERROR) {
-                    Log.e(TAG, "getBearerToken", result.exception)
-                }
-                mediator.postValue(result.state)
             }
         }
         return mediator

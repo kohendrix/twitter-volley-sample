@@ -6,9 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import com.example.koheiando.twittervolleysample.driver.api.NetworkState
 import com.example.koheiando.twittervolleysample.driver.api.requests.TwitterBearerTokenRequest
 import com.example.koheiando.twittervolleysample.util.PreferenceUtil.TwitterApiInfo.Companion.twitterBearerToken
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 class TwitterBearerTokenRepository(private val tokenRequest: TwitterBearerTokenRequest) {
     /**
@@ -18,21 +15,18 @@ class TwitterBearerTokenRepository(private val tokenRequest: TwitterBearerTokenR
      * @param { String } apiSec : secret key
      * @return { LiveData<TwitterBearerTokenResult> }
      */
-    fun getToken(apiPub: String, apiSec: String): LiveData<TwitterBearerTokenResult> {
+    suspend fun getToken(apiPub: String, apiSec: String): LiveData<TwitterBearerTokenResult> {
         val result = MutableLiveData<TwitterBearerTokenResult>()
-        GlobalScope.launch(Dispatchers.Default) {
-            try {
-                result.postValue(
-                    TwitterBearerTokenResult(
-                        NetworkState.SUCCESS,
-                        if (twitterBearerToken.isNotEmpty()) TwitterBearerToken(twitterBearerToken)
-                        else tokenRequest.request(apiPub, apiSec).bearerToken
-                    )
+        if (twitterBearerToken.isNotEmpty()) {
+            result.postValue(
+                TwitterBearerTokenResult(
+                    NetworkState.SUCCESS,
+                    TwitterBearerToken(twitterBearerToken)
                 )
-            } catch (e: Exception) {
-                result.postValue(TwitterBearerTokenResult(NetworkState.ERROR, TwitterBearerToken(""), e))
-                Log.e(TAG, "getRefreshedToken", e)
-            }
+            )
+        } else {
+            val res = getRefreshedToken(apiPub, apiSec)
+            result.postValue(res)
         }
         return result
     }
@@ -44,22 +38,23 @@ class TwitterBearerTokenRepository(private val tokenRequest: TwitterBearerTokenR
      * @param { String } apiSec : secret key
      * @return { LiveData<TwitterBearerTokenResult> }
      */
-    fun getRefreshedToken(apiPub: String, apiSec: String): LiveData<TwitterBearerTokenResult> {
-        val result = MutableLiveData<TwitterBearerTokenResult>()
-        GlobalScope.launch(Dispatchers.Default) {
-            try {
-                result.postValue(
-                    TwitterBearerTokenResult(
-                        NetworkState.SUCCESS,
-                        tokenRequest.request(apiPub, apiSec).bearerToken
-                    )
-                )
-            } catch (e: Exception) {
-                result.postValue(TwitterBearerTokenResult(NetworkState.ERROR, TwitterBearerToken(""), e))
-                Log.e(TAG, "getRefreshedToken", e)
-            }
+    private suspend fun getRefreshedToken(
+        apiPub: String,
+        apiSec: String
+    ): TwitterBearerTokenResult {
+        return try {
+            TwitterBearerTokenResult(
+                NetworkState.SUCCESS,
+                tokenRequest.request(apiPub, apiSec).bearerToken
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "getRefreshedToken", e)
+            TwitterBearerTokenResult(
+                NetworkState.ERROR,
+                TwitterBearerToken(""),
+                e
+            )
         }
-        return result
     }
 
     companion object {
