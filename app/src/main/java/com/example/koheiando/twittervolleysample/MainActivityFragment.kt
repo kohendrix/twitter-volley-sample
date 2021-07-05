@@ -60,7 +60,8 @@ class MainActivityFragment : Fragment() {
                     NetworkState.NO_TOKEN -> {
                         updateUI(false)
                         activity?.supportFragmentManager?.beginTransaction()
-                            ?.add(R.id.popup_fragment_container, InitializeFragment.getInstance())?.commit()
+                            ?.add(R.id.popup_fragment_container, InitializeFragment.getInstance())
+                            ?.commit()
                     }
                     NetworkState.ERROR -> {
                         updateUI(false)
@@ -71,12 +72,17 @@ class MainActivityFragment : Fragment() {
         })
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_main, container, false)?.apply {
             searchBox = findViewById<EditText>(R.id.search_box)
             searchButton = findViewById<Button>(R.id.search_btn)
             progressCircle = findViewById<ProgressBar>(R.id.progress_circle)
-            recyclerView = findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recycler_view)
+            recyclerView =
+                findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recycler_view)
         }
     }
 

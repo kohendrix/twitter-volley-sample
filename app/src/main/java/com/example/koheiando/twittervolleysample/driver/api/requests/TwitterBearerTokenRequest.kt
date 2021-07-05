@@ -12,7 +12,8 @@ class TwitterBearerTokenRequest : HttpRequest() {
         private const val PATH = "oauth2/token"
         private const val HEADER_AUTHORIZATION_KEY = "Authorization"
         private const val HEADER_CONTENT_TYPE_KEY = "Content-Type"
-        private const val HEADER_CONTENT_TYPE_VAL = "application/x-www-form-urlencoded;charset=UTF-8"
+        private const val HEADER_CONTENT_TYPE_VAL =
+            "application/x-www-form-urlencoded;charset=UTF-8"
         private val TAG = TwitterBearerTokenRequest::class.java.simpleName
     }
 
@@ -32,14 +33,19 @@ class TwitterBearerTokenRequest : HttpRequest() {
         }
 
         val preEncoded = "$apiPub:$apiSec"
-        val authValue = "Basic ${Base64.encodeToString(preEncoded.toByteArray(), Base64.NO_WRAP)}" // no line feed code
+        val authValue = "Basic ${
+            Base64.encodeToString(
+                preEncoded.toByteArray(),
+                Base64.NO_WRAP
+            )
+        }" // no line feed code
 
         Log.d(TAG, "preEncoded $preEncoded")
         Log.d(TAG, "auth value $authValue")
 
         return mapOf(
-                HEADER_AUTHORIZATION_KEY to authValue,
-                HEADER_CONTENT_TYPE_KEY to HEADER_CONTENT_TYPE_VAL
+            HEADER_AUTHORIZATION_KEY to authValue,
+            HEADER_CONTENT_TYPE_KEY to HEADER_CONTENT_TYPE_VAL
         )
     }
 }
