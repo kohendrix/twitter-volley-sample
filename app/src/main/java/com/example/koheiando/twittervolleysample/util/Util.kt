@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import com.example.koheiando.twittervolleysample.TvsApplication
 
 
@@ -43,11 +42,11 @@ class MyVMFactory<T>(val build: () -> T) : ViewModelProvider.Factory {
 
 // view model getters
 inline fun <reified T : ViewModel> Fragment.getViewModel(noinline build: (() -> T)? = null): T {
-    return if (build == null) ViewModelProviders.of(this).get(T::class.java)
-    else ViewModelProviders.of(this, MyVMFactory(build)).get(T::class.java)
+    return if (build == null) ViewModelProvider(this).get(T::class.java)
+    else ViewModelProvider(this, MyVMFactory(build)).get(T::class.java)
 }
 
 inline fun <reified T : ViewModel> FragmentActivity.getViewModel(noinline build: (() -> T)? = null): T {
-    return if (build == null) ViewModelProviders.of(this).get(T::class.java)
-    else ViewModelProviders.of(this, MyVMFactory(build)).get(T::class.java)
+    return if (build == null) ViewModelProvider(this).get(T::class.java)
+    else ViewModelProvider(this, MyVMFactory(build)).get(T::class.java)
 }
