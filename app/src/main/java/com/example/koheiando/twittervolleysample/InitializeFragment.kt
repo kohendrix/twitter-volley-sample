@@ -26,6 +26,7 @@ class InitializeFragment : Fragment() {
 
         private const val KEY_IS_LOADING = "isLoading"
         private const val KEY_IS_MESSAGE_ERROR = "isMessageError"
+        private val TAG = InitializeFragment::class.java.simpleName
     }
 
     private lateinit var apiKeyPubBox: EditText
@@ -52,7 +53,11 @@ class InitializeFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_initialize, container, false)?.apply {
             apiKeyPubBox = findViewById<EditText>(R.id.api_key_pub_box)
             apiKeySecBox = findViewById<EditText>(R.id.api_key_sec_box)
@@ -87,7 +92,11 @@ class InitializeFragment : Fragment() {
                 vm.getBearerToken(pubKey, secKey).observe(this, Observer {
                     when (it) {
                         NetworkState.SUCCESS -> runOnUiThread {
-                            Toast.makeText(TvsApplication.getAppContext(), "Success", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                TvsApplication.getAppContext(),
+                                "Success",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             removeSelf()
                         }
                         NetworkState.ERROR, NetworkState.NO_TOKEN -> runOnUiThread {
@@ -125,7 +134,7 @@ class InitializeFragment : Fragment() {
      */
     private fun switchMessage(isError: Boolean) {
         message.text =
-                getText(if (isError) R.string.initialize_token_error_message else R.string.initialize_token_message)
+            getText(if (isError) R.string.initialize_token_error_message else R.string.initialize_token_message)
         message.setTextColor(if (isError) Color.RED else Color.BLACK)
         isMessageError = isError
     }
