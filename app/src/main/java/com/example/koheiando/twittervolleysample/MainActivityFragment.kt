@@ -41,35 +41,7 @@ class MainActivityFragment : Fragment() {
         savedInstanceState?.let {
             isLoading = it.getBoolean(IS_LOADING_KEY, false)
         }
-    }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_main, container, false)?.apply {
-            searchBox = findViewById<EditText>(R.id.search_box)
-            searchButton = findViewById<Button>(R.id.search_btn)
-            progressCircle = findViewById<ProgressBar>(R.id.progress_circle)
-            recyclerView = findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recycler_view)
-        }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        searchButton.setOnClickListener {
-            if (searchBox.text.isNotEmpty()) {
-                fetchTweets(searchBox.text.toString())
-            }
-        }
-
-        recyclerView.layoutManager = LinearLayoutManager(activity)
-            .apply { orientation = VERTICAL }
-        recyclerView.adapter = TweetsRecyclerViewAdapter()
-
-        updateUI(isLoading)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        // activity should not be null but just in case
         activity?.getViewModel {
             MainViewModel(
                 TwitterBearerTokenRepository(TwitterBearerTokenRequest()),
@@ -97,6 +69,30 @@ class MainActivityFragment : Fragment() {
                 }
             }
         })
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_main, container, false)?.apply {
+            searchBox = findViewById<EditText>(R.id.search_box)
+            searchButton = findViewById<Button>(R.id.search_btn)
+            progressCircle = findViewById<ProgressBar>(R.id.progress_circle)
+            recyclerView = findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recycler_view)
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        searchButton.setOnClickListener {
+            if (searchBox.text.isNotEmpty()) {
+                fetchTweets(searchBox.text.toString())
+            }
+        }
+
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+            .apply { orientation = VERTICAL }
+        recyclerView.adapter = TweetsRecyclerViewAdapter()
+
+        updateUI(isLoading)
     }
 
     /**
