@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.example.koheiando.twittervolleysample.driver.api.NetworkState
 import com.example.koheiando.twittervolleysample.driver.api.requests.TweetsSearchRequest
@@ -17,7 +18,7 @@ import com.example.koheiando.twittervolleysample.util.getViewModel
 import com.example.koheiando.twittervolleysample.util.hideKeyboard
 import com.example.koheiando.twittervolleysample.viewModels.MainViewModel
 
-class InitializeFragment : androidx.fragment.app.Fragment() {
+class InitializeFragment : Fragment() {
     companion object {
         fun getInstance(b: Bundle? = null) = InitializeFragment().apply {
             b?.let { arguments = it }
@@ -130,7 +131,7 @@ class InitializeFragment : androidx.fragment.app.Fragment() {
     }
 
     private fun removeSelf() {
-        fragmentManager?.beginTransaction()?.remove(this)?.commit()
+        activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

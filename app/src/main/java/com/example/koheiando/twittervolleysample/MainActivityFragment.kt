@@ -87,7 +87,7 @@ class MainActivityFragment : Fragment() {
                     }
                     NetworkState.NO_TOKEN -> {
                         updateUI(false)
-                        fragmentManager?.beginTransaction()
+                        activity?.supportFragmentManager?.beginTransaction()
                             ?.add(R.id.popup_fragment_container, InitializeFragment.getInstance())?.commit()
                     }
                     NetworkState.ERROR -> {
