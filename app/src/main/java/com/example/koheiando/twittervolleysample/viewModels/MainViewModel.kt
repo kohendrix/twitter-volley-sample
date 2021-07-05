@@ -4,12 +4,10 @@ import android.util.Log
 import androidx.lifecycle.*
 import com.example.koheiando.twittervolleysample.driver.api.NetworkState
 import com.example.koheiando.twittervolleysample.model.token.TwitterBearerTokenRepository
-import com.example.koheiando.twittervolleysample.model.token.TwitterBearerTokenResult
 import com.example.koheiando.twittervolleysample.model.tweet.TweetDataResult
 import com.example.koheiando.twittervolleysample.model.tweet.TweetsRepository
 import com.example.koheiando.twittervolleysample.util.PreferenceUtil
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class MainViewModel(
     private val tokenRepository: TwitterBearerTokenRepository,
@@ -42,27 +40,19 @@ class MainViewModel(
      * @return { LiveData<NetworkState> }
      */
     fun getBearerToken(apiPub: String, apiSec: String): LiveData<NetworkState> {
-        val mediator = MediatorLiveData<NetworkState>()
-        // initial value
-        mediator.postValue(NetworkState.LOADING)
+        return liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            emit(NetworkState.LOADING)
 
-        viewModelScope.launch {
             val tokenResultData = tokenRepository.getToken(apiPub, apiSec)
-
-            mediator.addSource(tokenResultData) { result: TwitterBearerTokenResult? ->
-                result?.let {
-                    if (result.state == NetworkState.SUCCESS) {
-                        PreferenceUtil.TwitterApiInfo.twitterBearerToken =
-                            result.token.toString() // save it to local
-                    }
-                    if (result.state == NetworkState.ERROR) {
-                        Log.e(TAG, "getBearerToken", result.exception)
-                    }
-                    mediator.postValue(result.state)
-                }
+            if (tokenResultData.state == NetworkState.SUCCESS) {
+                PreferenceUtil.TwitterApiInfo.twitterBearerToken =
+                    tokenResultData.token.toString() // save it to local
             }
+            if (tokenResultData.state == NetworkState.ERROR) {
+                Log.e(TAG, "getBearerToken", tokenResultData.exception)
+            }
+            emit(tokenResultData.state)
         }
-        return mediator
     }
 
     companion object {

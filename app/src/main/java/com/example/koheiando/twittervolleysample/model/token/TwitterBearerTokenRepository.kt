@@ -1,8 +1,6 @@
 package com.example.koheiando.twittervolleysample.model.token
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.example.koheiando.twittervolleysample.driver.api.NetworkState
 import com.example.koheiando.twittervolleysample.driver.api.requests.TwitterBearerTokenRequest
 import com.example.koheiando.twittervolleysample.util.PreferenceUtil.TwitterApiInfo.Companion.twitterBearerToken
@@ -13,22 +11,17 @@ class TwitterBearerTokenRepository(private val tokenRequest: TwitterBearerTokenR
      * if the preference value is not empty, returns it without validating
      * @param { String } apiPub : public key
      * @param { String } apiSec : secret key
-     * @return { LiveData<TwitterBearerTokenResult> }
+     * @return { TwitterBearerTokenResult }
      */
-    suspend fun getToken(apiPub: String, apiSec: String): LiveData<TwitterBearerTokenResult> {
-        val result = MutableLiveData<TwitterBearerTokenResult>()
-        if (twitterBearerToken.isNotEmpty()) {
-            result.postValue(
-                TwitterBearerTokenResult(
-                    NetworkState.SUCCESS,
-                    TwitterBearerToken(twitterBearerToken)
-                )
+    suspend fun getToken(apiPub: String, apiSec: String): TwitterBearerTokenResult {
+        return if (twitterBearerToken.isNotEmpty()) {
+            TwitterBearerTokenResult(
+                NetworkState.SUCCESS,
+                TwitterBearerToken(twitterBearerToken)
             )
         } else {
-            val res = getRefreshedToken(apiPub, apiSec)
-            result.postValue(res)
+            getRefreshedToken(apiPub, apiSec)
         }
-        return result
     }
 
     /**
@@ -36,7 +29,7 @@ class TwitterBearerTokenRepository(private val tokenRequest: TwitterBearerTokenR
      * always throw a request to the api regardless of preference value status
      * @param { String } apiPub : public key
      * @param { String } apiSec : secret key
-     * @return { LiveData<TwitterBearerTokenResult> }
+     * @return { TwitterBearerTokenResult }
      */
     private suspend fun getRefreshedToken(
         apiPub: String,
