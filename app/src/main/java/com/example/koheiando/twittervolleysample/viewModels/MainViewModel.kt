@@ -8,6 +8,7 @@ import com.example.koheiando.twittervolleysample.model.token.TwitterBearerTokenR
 import com.example.koheiando.twittervolleysample.model.tweet.TweetDataResult
 import com.example.koheiando.twittervolleysample.model.tweet.TweetsRepository
 import com.example.koheiando.twittervolleysample.util.PreferenceUtil
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainViewModel(
@@ -18,7 +19,12 @@ class MainViewModel(
 
     // tweet data exposed to Views
     val tweetDataResults: LiveData<TweetDataResult> =
-        Transformations.switchMap(searchWords) { str -> tweetsRepository.loadTweets(str) }
+        Transformations.switchMap(searchWords) { str ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                emit(TweetDataResult(NetworkState.LOADING, listOf()))
+                emit(tweetsRepository.loadTweets(str))
+            }
+        }
 
     /**
      * search trigger
@@ -39,7 +45,7 @@ class MainViewModel(
         val mediator = MediatorLiveData<NetworkState>()
         // initial value
         mediator.postValue(NetworkState.LOADING)
-        
+
         viewModelScope.launch {
             val tokenResultData = tokenRepository.getToken(apiPub, apiSec)
 
