@@ -41,35 +41,6 @@ class MainActivityFragment : Fragment() {
         savedInstanceState?.let {
             isLoading = it.getBoolean(IS_LOADING_KEY, false)
         }
-
-        activity?.getViewModel {
-            MainViewModel(
-                TwitterBearerTokenRepository(TwitterBearerTokenRequest()),
-                TweetsRepository(TweetsSearchRequest())
-            )
-        }?.tweetDataResults?.observe(this, Observer {
-            it?.let { data ->
-                when (data.state) {
-                    NetworkState.SUCCESS -> {
-                        (recyclerView.adapter as TweetsRecyclerViewAdapter).updateTweets(data.tweets)
-                        updateUI(false)
-                    }
-                    NetworkState.LOADING -> {
-                        updateUI(true)
-                    }
-                    NetworkState.NO_TOKEN -> {
-                        updateUI(false)
-                        activity?.supportFragmentManager?.beginTransaction()
-                            ?.add(R.id.popup_fragment_container, InitializeFragment.getInstance())
-                            ?.commit()
-                    }
-                    NetworkState.ERROR -> {
-                        updateUI(false)
-                        Toast.makeText(activity, "ERROR....", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        })
     }
 
     override fun onCreateView(
@@ -99,6 +70,36 @@ class MainActivityFragment : Fragment() {
         recyclerView.adapter = TweetsRecyclerViewAdapter()
 
         updateUI(isLoading)
+
+        // Add the tweets observer
+        activity?.getViewModel {
+            MainViewModel(
+                TwitterBearerTokenRepository(TwitterBearerTokenRequest()),
+                TweetsRepository(TweetsSearchRequest())
+            )
+        }?.tweetDataResults?.observe(this, Observer {
+            it?.let { data ->
+                when (data.state) {
+                    NetworkState.SUCCESS -> {
+                        (recyclerView.adapter as TweetsRecyclerViewAdapter).updateTweets(data.tweets)
+                        updateUI(false)
+                    }
+                    NetworkState.LOADING -> {
+                        updateUI(true)
+                    }
+                    NetworkState.NO_TOKEN -> {
+                        updateUI(false)
+                        activity?.supportFragmentManager?.beginTransaction()
+                            ?.add(R.id.popup_fragment_container, InitializeFragment.getInstance())
+                            ?.commit()
+                    }
+                    NetworkState.ERROR -> {
+                        updateUI(false)
+                        Toast.makeText(activity, "ERROR....", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
     }
 
     /**
